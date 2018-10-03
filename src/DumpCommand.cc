@@ -264,12 +264,12 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
       while (process_raw_data && trace.read_raw_data_metadata_for_frame(data)) {
         if (flags.dump_recorded_data_metadata) {
           if (flags.dump_recorded_data && trace.read_raw_data_for_frame(raw_data)) {
-            ss << "0x";
+           
             for(size_t i = 0; i < raw_data.data.size(); ++i) {
               ss << std::hex << (int)raw_data.data[i];
             }
           }
-          fprintf(out, "  { tid:%d, addr:%p, length:%p, data:%s }\n", data.rec_tid,
+          fprintf(out, "  { tid:%d, addr:%p, length:%p, data:0x%s }\n", data.rec_tid,
                   (void*)data.addr.as_int(), (void*)data.size, ss.str().c_str());
         }
       }
