@@ -157,7 +157,7 @@ static void dump_task_event(FILE* out, const TraceTaskEvent& event) {
 std::string string_to_hex(std::vector<uint8_t> input)
 {
     static const char* const lut = "0123456789ABCDEF";
-    size_t len = input.length();
+    size_t len = input.size();
 
     std::string output;
     output.reserve(2 * len);
@@ -277,7 +277,7 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
       TraceReader::RawDataMetadata data;
       TraceReader::RawData raw_data;
 
-      std::string ss;
+      std::string ss="";
 
 
       while (process_raw_data && trace.read_raw_data_metadata_for_frame(data)) {
@@ -285,7 +285,7 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
           if (flags.dump_recorded_data && trace.read_raw_data_for_frame(raw_data)) {
             ss = string_to_hex(raw_data.data);     
           }
-          fprintf(out, "  { tid:%d, addr:%p, length:%p, data:0x%s }\n", data.rec_tid,
+          fprintf(out, "  { tid:%d, addr:%p, length:%p, data:\'%s\' }\n", data.rec_tid,
                   (void*)data.addr.as_int(), (void*)data.size, ss.c_str());
         }
       }
