@@ -153,6 +153,24 @@ static void dump_task_event(FILE* out, const TraceTaskEvent& event) {
   }
 }
 
+
+std::string string_to_hex(std::vector<uint8_t> input)
+{
+    static const char* const lut = "0123456789ABCDEF";
+    size_t len = input.length();
+
+    std::string output;
+    output.reserve(2 * len);
+    for (size_t i = 0; i < len; ++i)
+    {
+        const unsigned char c = input[i];
+        output.push_back(lut[c >> 4]);
+        output.push_back(lut[c & 15]);
+    }
+    return output;
+}
+
+
 /**
  * Dump all events from the current to trace that match |spec| to
  * |out|.  |spec| has the following syntax: /\d+(-\d+)?/, expressing
@@ -258,19 +276,17 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
 
       TraceReader::RawDataMetadata data;
       TraceReader::RawData raw_data;
-      std::stringstream ss;
 
-      ss.str("");
+      std::string ss;
+
+
       while (process_raw_data && trace.read_raw_data_metadata_for_frame(data)) {
         if (flags.dump_recorded_data_metadata) {
           if (flags.dump_recorded_data && trace.read_raw_data_for_frame(raw_data)) {
-           
-            for(size_t i = 0; i < raw_data.data.size(); ++i) {
-              ss << std::hex << (int)raw_data.data[i];
-            }
+            ss = string_to_hex(raw_data.data);     
           }
           fprintf(out, "  { tid:%d, addr:%p, length:%p, data:0x%s }\n", data.rec_tid,
-                  (void*)data.addr.as_int(), (void*)data.size, ss.str().c_str());
+                  (void*)data.addr.as_int(), (void*)data.size, ss.c_str());
         }
       }
       if (!flags.raw_dump) {
