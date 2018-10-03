@@ -266,12 +266,9 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
               for(size_t i = 0; i < raw_data.data.size(); ++i) {
                 ss << std::hex << (int)raw_data.data[i];
               }
-              fprintf(out, "  { tid:%d, addr:%p, length:%p, data:%s }\n", data.rec_tid,
-                      (void*)data.addr.as_int(), (void*)data.size, ss.str().c_str());
-          } else {
-              fprintf(out, "  { tid:%d, addr:%p, length:%p }\n", data.rec_tid,
-                      (void*)data.addr.as_int(), (void*)data.size);
           }
+          fprintf(out, "  { tid:%d, addr:%p, length:%p, data:%s }\n", data.rec_tid,
+                  (void*)data.addr.as_int(), (void*)data.size, ss.str().c_str());
         }
       }
 
