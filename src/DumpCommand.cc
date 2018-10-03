@@ -40,6 +40,7 @@ DumpCommand DumpCommand::singleton(
     "  -b, --syscallbuf           dump syscallbuf contents\n"
     "  -e, --task-events          dump task events\n"
     "  -m, --recorded-metadata    dump recorded data metadata\n"
+    "  -d, --recorded-data        dump recorded data and data metadata\n"
     "  -p, --mmaps                dump mmap data\n"
     "  -r, --raw                  dump trace frames in a more easily\n"
     "                             machine-parseable format instead of the\n"
@@ -56,6 +57,7 @@ static bool parse_dump_arg(vector<string>& args, DumpFlags& flags) {
     { 'b', "syscallbuf", NO_PARAMETER },
     { 'e', "task-events", NO_PARAMETER },
     { 'm', "recorded-metadata", NO_PARAMETER },
+    { 'd', "recorded-data", NO_PARAMETER },
     { 'p', "mmaps", NO_PARAMETER },
     { 'r', "raw", NO_PARAMETER },
     { 's', "statistics", NO_PARAMETER },
@@ -74,6 +76,10 @@ static bool parse_dump_arg(vector<string>& args, DumpFlags& flags) {
       flags.dump_task_events = true;
       break;
     case 'm':
+      flags.dump_recorded_data_metadata = true;
+      break;
+    case 'd':
+      flags.dump_recorded_data = true;
       flags.dump_recorded_data_metadata = true;
       break;
     case 'p':
@@ -255,15 +261,17 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
 
       while (process_raw_data && trace.read_raw_data_metadata_for_frame(data)) {
         if (flags.dump_recorded_data_metadata) {
-          if (trace.read_raw_data_for_frame(raw_data)) {
-            ss << "0x";
-            for(size_t i = 0; i < raw_data.data.size(); ++i) {
-              ss << std::hex << (int)raw_data.data[i];
-            }
+          if (flags.dump_recorded_data && trace.read_raw_data_for_frame(raw_data)) {
+              ss << "0x";
+              for(size_t i = 0; i < raw_data.data.size(); ++i) {
+                ss << std::hex << (int)raw_data.data[i];
+              }
+              fprintf(out, "  { tid:%d, addr:%p, length:%p, data:%s }\n", data.rec_tid,
+                      (void*)data.addr.as_int(), (void*)data.size, ss.str().c_str());
+          } else {
+              fprintf(out, "  { tid:%d, addr:%p, length:%p }\n", data.rec_tid,
+                      (void*)data.addr.as_int(), (void*)data.size);
           }
-          
-          fprintf(out, "  { tid:%d, addr:%p, length:%p, data:%s }\n", data.rec_tid,
-                  (void*)data.addr.as_int(), (void*)data.size, ss.str().c_str());
         }
       }
 
