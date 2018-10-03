@@ -260,7 +260,7 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
       TraceReader::RawData raw_data;
       std::stringstream ss;
 
-      ss.str("none");
+      ss.str("");
       while (process_raw_data && trace.read_raw_data_metadata_for_frame(data)) {
         if (flags.dump_recorded_data_metadata) {
           if (flags.dump_recorded_data && trace.read_raw_data_for_frame(raw_data)) {
