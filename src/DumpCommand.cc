@@ -79,8 +79,8 @@ static bool parse_dump_arg(vector<string>& args, DumpFlags& flags) {
       flags.dump_recorded_data_metadata = true;
       break;
     case 'd':
-      flags.dump_recorded_data = true;
       flags.dump_recorded_data_metadata = true;
+      flags.dump_recorded_data = true;
       break;
     case 'p':
       flags.dump_mmaps = true;
@@ -192,7 +192,8 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
   }
 
   bool process_raw_data =
-      flags.dump_syscallbuf || flags.dump_recorded_data_metadata;
+      flags.dump_syscallbuf || flags.dump_recorded_data_metadata || \
+    flags.dump_recorded_data;
   while (!trace.at_end()) {
     auto frame = trace.read_frame();
     if (end < frame.time()) {
@@ -259,19 +260,19 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
       TraceReader::RawData raw_data;
       std::stringstream ss;
 
+      ss.str("none");
       while (process_raw_data && trace.read_raw_data_metadata_for_frame(data)) {
         if (flags.dump_recorded_data_metadata) {
           if (flags.dump_recorded_data && trace.read_raw_data_for_frame(raw_data)) {
-              ss << "0x";
-              for(size_t i = 0; i < raw_data.data.size(); ++i) {
-                ss << std::hex << (int)raw_data.data[i];
-              }
+            ss << "0x";
+            for(size_t i = 0; i < raw_data.data.size(); ++i) {
+              ss << std::hex << (int)raw_data.data[i];
+            }
           }
           fprintf(out, "  { tid:%d, addr:%p, length:%p, data:%s }\n", data.rec_tid,
                   (void*)data.addr.as_int(), (void*)data.size, ss.str().c_str());
         }
       }
-
       if (!flags.raw_dump) {
         fprintf(out, "}\n");
       }
