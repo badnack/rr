@@ -280,13 +280,13 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
       std::string ss="";
 
 
-      while (process_raw_data && trace.read_raw_data_metadata_for_frame(data)) {
+      while (process_raw_data && trace.read_raw_data_for_frame(raw_data)) {
         if (flags.dump_recorded_data_metadata) {
-          if (flags.dump_recorded_data && trace.read_raw_data_for_frame(raw_data)) {
+          if (flags.dump_recorded_data) {
             ss = string_to_hex(raw_data.data);     
           }
-          fprintf(out, "  { tid:%d, addr:%p, length:%p, data:\'%s\' }\n", data.rec_tid,
-                  (void*)data.addr.as_int(), (void*)data.size, ss.c_str());
+          fprintf(out, "  { tid:%d, addr:%p, length:%p, data:\'%s\' }\n", raw_data.rec_tid,
+                  (void*)raw_data.addr.as_int(), (void*)raw_data.data.size(), ss.c_str());
         }
       }
       if (!flags.raw_dump) {
