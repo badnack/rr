@@ -147,6 +147,21 @@ static void dump_task_event(FILE* out, const TraceTaskEvent& event) {
   }
 }
 
+  void print_raw_data(TraceReader& trace){
+    int j = 0;
+    TraceReader::RawData raw_data;
+    if (trace.read_raw_data_for_frame(raw_data)) {
+      std::cout << "Raw data. Len: " << raw_data.data.size() << endl;
+      for (std::vector<uint8_t>::const_iterator i = raw_data.data.begin(); i != raw_data.data.end(); ++i) {
+        std::cout << j << ": " << std::hex << (int)*i << ' ';
+        j++;
+      }
+    } else {
+      std::cout << "No data could be displayed";
+    }
+    std::cout << endl;
+  }
+
 /**
  * Dump all events from the current to trace that match |spec| to
  * |out|.  |spec| has the following syntax: /\d+(-\d+)?/, expressing
@@ -255,7 +270,9 @@ static void dump_events_matching(TraceReader& trace, const DumpFlags& flags,
           fprintf(out, "  { tid:%d, addr:%p, length:%p }\n", data.rec_tid,
                   (void*)data.addr.as_int(), (void*)data.size);
         }
+        print_raw_data(trace);
       }
+
       if (!flags.raw_dump) {
         fprintf(out, "}\n");
       }
