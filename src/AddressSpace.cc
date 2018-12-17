@@ -315,7 +315,7 @@ void AddressSpace::map_rr_page(AutoRemoteSyscalls& remote) {
     map(t, rr_page_start(), rr_page_size(), prot, flags, 0, file_name,
         fstat.st_dev, fstat.st_ino);
   } else {
-    ASSERT(t, child_fd == -EACCES) << "Unexpected error mapping rr_page";
+    ASSERT(t, child_fd == -EACCES || child_fd == -ENOENT) << "Unexpected error mapping rr_page, got error: " << child_fd;
     flags |= MAP_ANONYMOUS;
     remote.infallible_mmap_syscall(rr_page_start(), rr_page_size(), prot, flags,
                                    -1, 0);
